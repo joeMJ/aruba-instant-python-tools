@@ -60,9 +60,9 @@ Lesende Tools (`ap_check`, `ap_list`, `ap_bss_list`, `swarm_dns_check`, `ap_find
 
 ### Windows (Schnellstart mit `setup.bat`)
 
-Für Windows-Anwender ohne Git gibt es ein Setup-Skript. Es prüft, ob **Python 3.9 oder neuer** vorhanden ist, und installiert bei Bedarf Python 3.12 von python.org (nur für den aktuellen Benutzer, **ohne Administratorrechte**, mit PATH-Eintrag; die Signatur des Installers wird geprüft). Danach kopiert es die Toolsammlung in einen Ordner deiner Wahl (Standard: `%USERPROFILE%\ArubaInstantTools`; aus dem Ordner der `setup.bat`, wenn du das ZIP schon entpackt hast, sonst per Download von GitHub), installiert die benötigten Python-Bibliotheken (für den aktuellen Benutzer) und legt eine Desktop-Verknüpfung an. Ein separater `pip install`-Schritt ist nicht nötig.
+Für Windows-Anwender ohne Git gibt es ein Setup-Skript. Es prüft, ob **Python 3.9 oder neuer** vorhanden ist, und installiert bei Bedarf Python 3.12 von python.org (nur für den aktuellen Benutzer, **ohne Administratorrechte**, mit PATH-Eintrag; die Signatur des Installers wird geprüft). Danach kopiert es die Toolsammlung in einen Ordner deiner Wahl (Standard: `%USERPROFILE%\ArubaInstantTools`; aus dem Ordner der `setup.bat`, wenn du die komplette Sammlung schon entpackt hast, sonst per Download von GitHub), installiert die benötigten Python-Bibliotheken (für den aktuellen Benutzer) und legt eine Desktop-Verknüpfung an. Ein separater `pip install`-Schritt ist nicht nötig.
 
-1. **[ZIP-Datei herunterladen](https://github.com/joeMJ/aruba-instant-python-tools/archive/refs/heads/main.zip)** (oder auf der GitHub-Startseite **Code → Download ZIP**), die ZIP-Datei entpacken und im entpackten Ordner `aruba-instant-python-tools-main` die Datei `setup.bat` suchen.
+1. **[Setup-ZIP herunterladen](https://github.com/joeMJ/aruba-instant-python-tools/raw/main/Aruba-Instant-Tools-Setup.zip)** (enthält nur die Datei `setup.bat`) und entpacken. Der Rest der Toolsammlung wird beim Setup automatisch von GitHub nachgeladen. (Wer lieber die komplette Sammlung als ZIP möchte: auf der GitHub-Startseite **Code → Download ZIP**, entpacken und die `setup.bat` im entpackten Ordner starten – dann wird nichts nachgeladen.)
 2. `setup.bat` per Doppelklick starten (Windows SmartScreen ggf. mit „Weitere Informationen → Trotzdem ausführen“ bestätigen) und den Anweisungen folgen.
 3. Danach über die Desktop-Verknüpfung **„Aruba Instant Tools“** (bzw. `start-tools.bat`) oder eine beliebige Eingabeaufforderung/PowerShell im Installationsordner arbeiten, z. B. `py ap_check.py 10.1.1.1 --log`.
 
@@ -124,6 +124,14 @@ Details zu allen Optionen: `--help` des jeweiligen Tools und Quelltext.
 ---
 
 ## Hinweise
+
+### SSH-Kompatibilität: `ssh-rsa` (SHA-1) und `paramiko`
+
+Aruba Instant 8.10 (und ältere Access Points) bieten per SSH nur den veralteten Hostschlüssel `ssh-rsa` (SHA-1) an. **`paramiko` ab Version 5.0 lehnt ihn ab**; die Tools melden dann `Incompatible ssh peer (no acceptable host key)`. Deshalb ist in `requirements.txt` `paramiko==4.0.0` festgelegt (diese Version unterstützt `ssh-rsa`), und `setup.bat` fragt, ob diese kompatible Version installiert werden soll (empfohlen).
+
+> [!WARNING]
+> **Sicherheitshinweis:** `ssh-rsa` mit SHA-1 gilt als veraltet und ist seit OpenSSH 8.8 standardmäßig abgeschaltet ([Release-Hinweise](https://www.openssh.com/txt/release-8.8)). Das Risiko betrifft vor allem die Prüfung des Geräte-Hostschlüssels (zusammen mit `AutoAddPolicy` ist sie praktisch deaktiviert). Setze die Tools nur in einem abgesicherten Management-Netz ein und halte die Firmware aktuell. Wer die neueste `paramiko`-Version nutzen will, kann sie nachinstallieren (`pip install --upgrade paramiko`); gegen Geräte, die nur `ssh-rsa` anbieten, funktionieren die Tools dann nicht.
+
 
 * **Nur gegen Systeme einsetzen, für die du berechtigt bist.**
 * Alle Skripte wurden für Aruba **Instant 8.10.x** geschrieben; die CLI-Ausgaben werden per Textmuster ausgewertet und können bei anderer Firmware abweichen.

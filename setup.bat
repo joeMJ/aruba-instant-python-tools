@@ -164,6 +164,24 @@ if not exist "%TARGET%\config.json" (
 )
 :after_copy
 
+rem ---- SSH-Kompatibilitaet (paramiko) -------------------------------------------
+echo.
+echo ---- SSH-Kompatibilitaet mit aelteren Aruba-Systemen ----
+echo Aruba Instant 8.10 und aeltere Access Points bieten nur den veralteten SSH-
+echo Hostschluessel "ssh-rsa" (SHA-1) an. Neuere paramiko-Versionen ^(ab 5.0^) lehnen
+echo ihn ab; die Tools koennen sich dann nicht verbinden:
+echo     "Incompatible ssh peer ^(no acceptable host key^)"
+echo Empfehlung: paramiko 4.0.0 verwenden ^(unterstuetzt ssh-rsa^).
+echo.
+echo Sicherheitshinweis: ssh-rsa mit SHA-1 gilt als veraltet ^(seit OpenSSH 8.8
+echo standardmaessig abgeschaltet: https://www.openssh.com/txt/release-8.8^).
+echo Das Risiko betrifft vor allem die Pruefung des Geraete-Hostschluessels. Setze die
+echo Tools nur im abgesicherten Management-Netz ein und halte die Firmware aktuell.
+echo.
+set "PARAMIKO_NEW="
+choice /c JN /n /m "Kompatible Version paramiko 4.0.0 installieren ^(empfohlen^)? [J/N] "
+if errorlevel 2 set "PARAMIKO_NEW=1"
+
 rem ---- Python-Bibliotheken ----------------------------------------------------
 echo.
 echo Installiere Bibliotheken aus requirements.txt ^(fuer diesen Benutzer^) ...
@@ -177,6 +195,11 @@ if errorlevel 1 (
         goto :end_fail
     )
 )
+if defined PARAMIKO_NEW (
+    echo Installiere die neueste paramiko-Version ^(ohne ssh-rsa-Unterstuetzung^) ...
+    %PYCMD% -m pip install --user --disable-pip-version-check --upgrade paramiko
+)
+%PYCMD% -c "import paramiko; print('paramiko', paramiko.__version__)"
 %PYCMD% -c "import paramiko, keyring, Crypto, requests, bs4" >nul 2>&1
 if errorlevel 1 (
     echo FEHLER: Nicht alle Bibliotheken lassen sich importieren.

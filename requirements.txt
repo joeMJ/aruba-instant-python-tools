@@ -1,4 +1,5 @@
-paramiko
+# paramiko 5.x unterstuetzt den von Aruba Instant 8.10 genutzten SSH-Hostschluessel ssh-rsa (SHA-1) nicht mehr
+paramiko==4.0.0
 keyring
 pycryptodome
 requests
