@@ -62,10 +62,7 @@ Lesende Tools (`ap_check`, `ap_list`, `ap_bss_list`, `swarm_dns_check`, `ap_find
 
 Für Windows-Anwender ohne Git gibt es ein Setup-Skript. Es prüft, ob **Python 3.9 oder neuer** vorhanden ist, und installiert bei Bedarf Python 3.12 von python.org (nur für den aktuellen Benutzer, **ohne Administratorrechte**, mit PATH-Eintrag; die Signatur des Installers wird geprüft). Danach lädt es die Toolsammlung von GitHub in einen Ordner deiner Wahl (Standard: `%USERPROFILE%\ArubaInstantTools`), richtet eine virtuelle Python-Umgebung mit allen Bibliotheken ein und legt eine Desktop-Verknüpfung an.
 
-1. `setup.bat` herunterladen – entweder auf GitHub **Code → Download ZIP** und entpacken, oder in einer Eingabeaufforderung:
-   ```bat
-   curl.exe -L -o setup.bat https://raw.githubusercontent.com/joeMJ/aruba-instant-python-tools/main/setup.bat
-   ```
+1. **[ZIP-Datei herunterladen](https://github.com/joeMJ/aruba-instant-python-tools/archive/refs/heads/main.zip)** (oder auf der GitHub-Startseite **Code → Download ZIP**), die ZIP-Datei entpacken und im entpackten Ordner `aruba-instant-python-tools-main` die Datei `setup.bat` suchen.
 2. `setup.bat` per Doppelklick starten (Windows SmartScreen ggf. mit „Weitere Informationen → Trotzdem ausführen“ bestätigen) und den Anweisungen folgen.
 3. Danach über die Desktop-Verknüpfung **„Aruba Instant Tools“** (bzw. `start-tools.bat` im Installationsordner) eine Eingabeaufforderung im Tool-Ordner öffnen, z. B. `py ap_check.py 10.1.1.1 --log`.
 
