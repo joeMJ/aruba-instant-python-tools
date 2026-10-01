@@ -257,9 +257,9 @@ def main():
     parser.add_argument("-c", "--cmd", dest="commands", action="append", help="Ein auszuführender Show-Befehl (z. B. -c 'version' oder -c 'airgroup cache entries'). Das Präfix 'show' ist fest verdrahtet. Mehrfachangabe möglich.")
     parser.add_argument("--cmd-file", help="Pfad zu einer Textdatei mit Show-Befehlen (ein Befehl pro Zeile, ohne führendes 'show')")
     parser.add_argument("-m", "--memberaps", action="store_true", help="Führt den/die Befehl(e) auch auf allen aktiven Member-APs des Schwarms aus")
-    parser.add_argument("-i", "--importfile", help="Pfad zu einer Bestandsdatei (CSV, z. B. conductors.csv)")
-    parser.add_argument("--filter-carrier", help="Filtert nach Kreis/Kommune beim Import aus CSV")
-    parser.add_argument("--filter-standort", help="Filtert nach Standort beim Import aus CSV")
+    parser.add_argument("-i", "--importfile", help="Pfad zu einer CSV-Datei mit einer Spalte 'IP-Adresse', aus der Ziel-IPs importiert werden")
+    parser.add_argument("--filter-carrier", help="Filtert beim CSV-Import nach Gruppe (Teilstring, Groß-/Kleinschreibung egal)")
+    parser.add_argument("--filter-standort", help="Filtert beim CSV-Import nach Standort (Präfix, Groß-/Kleinschreibung egal)")
     parser.add_argument("--vc", "--conductor", dest="vc_ip", help="Conductor-IP, deren Anmeldedaten aus dem Speicher für die Ziel-IP(s) übernommen werden sollen")
     parser.add_argument("-t", "--threads", type=int, help="Anzahl paralleler Threads für Member-APs (Standard: 10, Max: 10)")
     parser.add_argument("--log", action="store_true", help="Aktiviert vollständiges Logging in Textdateien")
@@ -308,7 +308,7 @@ def main():
     # Ziel-IPs ermitteln
     targets = list(args.targets) if args.targets else []
 
-    # Import aus Datei (z. B. conductors.csv)
+    # Import aus CSV-Datei
     carrier_filter = args.filter_carrier.strip().lower() if args.filter_carrier else None
     standort_filter = args.filter_standort.strip().lower() if args.filter_standort else None
 

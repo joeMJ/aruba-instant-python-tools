@@ -300,8 +300,8 @@ Beispiele:
   # 6. Exakte Groß-/Kleinschreibung (Case-Sensitive):
   py ap_findlog.py 10.1.1.1 security "Failed" --case-sensitive
 
-  # 7. Conductors aus Bestandsdatei importieren (z. B. nur eine bestimmte Kommune):
-  py ap_findlog.py --importfile knownconductors/conductors.csv system "dhcp" --filter-carrier "Beispielstadt" --memberaps --log
+  # 7. Conductors aus einer CSV-Datei importieren (z. B. nur eine bestimmte Gruppe):
+  py ap_findlog.py --importfile C:\\pfad\\zur\\liste.csv system "dhcp" --filter-carrier "Gruppe A" --memberaps --log
 
   # 8. Vollautomatische Ausführung mit Windows Credential Manager / PowerShell-Pipe:
   "1`nadmin" | py -X utf8 .\\ap_findlog.py 10.1.1.1 system "dhcp" --memberaps --log
@@ -320,8 +320,8 @@ Beispiele:
     parser.add_argument('--protocol', '-p', type=str, help=f"Name des Protokolls ({', '.join(VALID_PROTOCOLS[:8])}, ...)")
     parser.add_argument('--search', '-s', type=str, help="Suchbegriff oder Textmuster (z. B. \"dhcp\" oder \"found dhcp option\")")
     parser.add_argument('--targets', type=str, help="Optionale Conductor-IPs (kommasepariert)")
-    parser.add_argument('--importfile', type=str, help="Pfad zu einer CSV-Datei (z. B. knownconductors/conductors.csv), aus der Conductor-IPs importiert werden.")
-    parser.add_argument('--filter-carrier', type=str, help="Optionaler Filter bei Import: Nur Conductors dieser Kommune / dieses Trägers abfragen.")
+    parser.add_argument('--importfile', type=str, help="Pfad zu einer CSV-Datei mit einer Spalte 'IP-Adresse', aus der Conductor-IPs importiert werden.")
+    parser.add_argument('--filter-carrier', type=str, help="Optionaler Filter bei Import: Nur Conductors dieser Gruppe abfragen (Teilstring).")
     parser.add_argument('--filter-standort', type=str, help="Optionaler Filter bei Import: Nur Conductors mit diesem Standort-Präfix abfragen.")
     parser.add_argument('--memberaps', '-m', action='store_true', help="Aktiviert die Prüfung auf ALLEN Member-APs des jeweiligen Schwarms (nicht nur Conductor).")
     parser.add_argument('--threads', '-t', type=int, default=None, help="Anzahl paralleler Worker-Threads für Member-APs (Standard: 10 aus config.json, maximal 10).")
@@ -418,7 +418,7 @@ Beispiele:
         print(f"Beispiel: py ap_findlog.py 10.1.1.1 {protocol} \"dhcp\"")
         sys.exit(1)
 
-    # Import aus Datei (z. B. conductors.csv)
+    # Import aus CSV-Datei
     carrier_filter = args.filter_carrier.strip().lower() if args.filter_carrier else None
     standort_filter = args.filter_standort.strip().lower() if args.filter_standort else None
 
@@ -437,7 +437,7 @@ Beispiele:
                     if not ip:
                         continue
 
-                    # Träger-Filter
+                    # Gruppen-Filter
                     if carrier_filter and carrier_col:
                         row_carrier = row.get(carrier_col, '').strip().lower()
                         if carrier_filter not in row_carrier:
