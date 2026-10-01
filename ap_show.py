@@ -258,8 +258,8 @@ def main():
     parser.add_argument("--cmd-file", help="Pfad zu einer Textdatei mit Show-Befehlen (ein Befehl pro Zeile, ohne führendes 'show')")
     parser.add_argument("-m", "--memberaps", action="store_true", help="Führt den/die Befehl(e) auch auf allen aktiven Member-APs des Schwarms aus")
     parser.add_argument("-i", "--importfile", help="Pfad zu einer CSV-Datei mit einer Spalte 'IP-Adresse', aus der Ziel-IPs importiert werden")
-    parser.add_argument("--filter-carrier", help="Filtert beim CSV-Import nach Gruppe (Teilstring, Groß-/Kleinschreibung egal)")
-    parser.add_argument("--filter-standort", help="Filtert beim CSV-Import nach Standort (Präfix, Groß-/Kleinschreibung egal)")
+    parser.add_argument("--filter-gruppe", help="Filtert beim CSV-Import nach Gruppe (Teilstring, Groß-/Kleinschreibung egal)")
+    parser.add_argument("--filter-kurzname", help="Filtert beim CSV-Import nach Conductor-Kurzname (Präfix, Groß-/Kleinschreibung egal)")
     parser.add_argument("--vc", "--conductor", dest="vc_ip", help="Conductor-IP, deren Anmeldedaten aus dem Speicher für die Ziel-IP(s) übernommen werden sollen")
     parser.add_argument("-t", "--threads", type=int, help="Anzahl paralleler Threads für Member-APs (Standard: 10, Max: 10)")
     parser.add_argument("--log", action="store_true", help="Aktiviert vollständiges Logging in Textdateien")
@@ -309,8 +309,8 @@ def main():
     targets = list(args.targets) if args.targets else []
 
     # Import aus CSV-Datei
-    carrier_filter = args.filter_carrier.strip().lower() if args.filter_carrier else None
-    standort_filter = args.filter_standort.strip().lower() if args.filter_standort else None
+    gruppe_filter = args.filter_gruppe.strip().lower() if args.filter_gruppe else None
+    kurzname_filter = args.filter_kurzname.strip().lower() if args.filter_kurzname else None
 
     if args.importfile:
         print(f"\nINFO: Importiere Conductor-Ziele aus Datei: {args.importfile}")
@@ -318,23 +318,23 @@ def main():
             with open(args.importfile, 'r', encoding='utf-8-sig') as f:
                 reader = csv.DictReader(f)
                 headers = reader.fieldnames or []
-                ip_col = 'ipadresse' if 'ipadresse' in headers else ('IP-Adresse' if 'IP-Adresse' in headers else 'ip')
-                carrier_col = 'kreisoderkommunenname' if 'kreisoderkommunenname' in headers else ('Träger' if 'Träger' in headers else None)
-                standort_col = 'standort' if 'standort' in headers else ('Standort' if 'Standort' in headers else None)
+                ip_col = 'IP-Adresse' if 'IP-Adresse' in headers else 'ip'
+                gruppe_col = 'standortgruppe' if 'standortgruppe' in headers else ('Gruppe' if 'Gruppe' in headers else None)
+                kurzname_col = 'conductorkurzname' if 'conductorkurzname' in headers else None
 
                 for row in reader:
                     ip = row.get(ip_col, '').strip()
                     if not ip:
                         continue
 
-                    if carrier_filter and carrier_col:
-                        row_carrier = row.get(carrier_col, '').strip().lower()
-                        if carrier_filter not in row_carrier:
+                    if gruppe_filter and gruppe_col:
+                        row_gruppe = row.get(gruppe_col, '').strip().lower()
+                        if gruppe_filter not in row_gruppe:
                             continue
 
-                    if standort_filter and standort_col:
-                        row_standort = row.get(standort_col, '').strip().lower()
-                        if not row_standort.startswith(standort_filter):
+                    if kurzname_filter and kurzname_col:
+                        row_kurzname = row.get(kurzname_col, '').strip().lower()
+                        if not row_kurzname.startswith(kurzname_filter):
                             continue
 
                     targets.append(ip)

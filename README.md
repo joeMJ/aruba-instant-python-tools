@@ -118,7 +118,7 @@ py swarm_dns_check.py 10.1.1.1 --checkurl example.org
 py ap_check.py --help
 ```
 
-**Import-CSV (`--importfile`):** Eine CSV mit Kopfzeile und einer Spalte `IP-Adresse` mit den Conductor-IPs (`ap_show.py` und `ap_findlog.py` erkennen zusätzlich `ipadresse` und `ip`). Optional werten die Tools weitere Spalten aus: `Typ` (`ap_check.py`, `ap_list.py`, `ap_bss_list.py`; nur Zeilen mit `Aruba Instant Virtual Controller` werden verwendet) und `Status` (zusätzlich `swarm_dns_check.py` und `ap_swarm_update.py`; `down` wird als offline behandelt) – das entspricht dem Export einer Netzwerkmanagement-Konsole. `ap_swarm_reload.py` liest nur `IP-Adresse`. Die von `ap_list.py` erzeugte CSV (Spalte `AP-IP-Adresse`) ist **kein** passendes Importformat.
+**Import-CSV (`--importfile`):** Eine CSV mit Kopfzeile und einer Spalte `IP-Adresse` mit den Conductor-IPs (`ap_show.py` und `ap_findlog.py` erkennen zusätzlich `ip`). Optional werten die Tools weitere Spalten aus: `Typ` (`ap_check.py`, `ap_list.py`, `ap_bss_list.py`; nur Zeilen mit `Aruba Instant Virtual Controller` werden verwendet) und `Status` (zusätzlich `swarm_dns_check.py` und `ap_swarm_update.py`; `down` wird als offline behandelt) – das entspricht dem Export einer Netzwerkmanagement-Konsole. `ap_swarm_reload.py` liest nur `IP-Adresse`. Die von `ap_list.py` erzeugte CSV (Spalte `AP-IP-Adresse`) ist **kein** passendes Importformat.
 
 **Ausgaben:** Mit `--log` entstehen Ergebnisordner mit Logdateien und CSVs im Arbeitsverzeichnis (z. B. `ap_check_<Zeitstempel>/`).
 

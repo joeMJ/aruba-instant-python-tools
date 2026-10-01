@@ -301,7 +301,7 @@ Beispiele:
   py ap_findlog.py 10.1.1.1 security "Failed" --case-sensitive
 
   # 7. Conductors aus einer CSV-Datei importieren (z. B. nur eine bestimmte Gruppe):
-  py ap_findlog.py --importfile C:\\pfad\\zur\\liste.csv system "dhcp" --filter-carrier "Gruppe A" --memberaps --log
+  py ap_findlog.py --importfile C:\\pfad\\zur\\liste.csv system "dhcp" --filter-gruppe "Gruppe A" --memberaps --log
 
   # 8. Vollautomatische Ausführung mit Windows Credential Manager / PowerShell-Pipe:
   "1`nadmin" | py -X utf8 .\\ap_findlog.py 10.1.1.1 system "dhcp" --memberaps --log
@@ -321,8 +321,8 @@ Beispiele:
     parser.add_argument('--search', '-s', type=str, help="Suchbegriff oder Textmuster (z. B. \"dhcp\" oder \"found dhcp option\")")
     parser.add_argument('--targets', type=str, help="Optionale Conductor-IPs (kommasepariert)")
     parser.add_argument('--importfile', type=str, help="Pfad zu einer CSV-Datei mit einer Spalte 'IP-Adresse', aus der Conductor-IPs importiert werden.")
-    parser.add_argument('--filter-carrier', type=str, help="Optionaler Filter bei Import: Nur Conductors dieser Gruppe abfragen (Teilstring).")
-    parser.add_argument('--filter-standort', type=str, help="Optionaler Filter bei Import: Nur Conductors mit diesem Standort-Präfix abfragen.")
+    parser.add_argument('--filter-gruppe', type=str, help="Optionaler Filter bei Import: Nur Conductors dieser Gruppe abfragen (Teilstring).")
+    parser.add_argument('--filter-kurzname', type=str, help="Optionaler Filter bei Import: Nur Conductors mit diesem Conductor-Kurznamen-Präfix abfragen.")
     parser.add_argument('--memberaps', '-m', action='store_true', help="Aktiviert die Prüfung auf ALLEN Member-APs des jeweiligen Schwarms (nicht nur Conductor).")
     parser.add_argument('--threads', '-t', type=int, default=None, help="Anzahl paralleler Worker-Threads für Member-APs (Standard: 10 aus config.json, maximal 10).")
     parser.add_argument('--case-sensitive', '-c', action='store_true', help="Unterscheidet strikt zwischen Groß- und Kleinschreibung (Standard: case-insensitive).")
@@ -343,7 +343,7 @@ Beispiele:
             try:
                 with open(args.delete_credentials_from_import, 'r', encoding='utf-8-sig') as f:
                     reader = csv.DictReader(f)
-                    ip_col = 'ipadresse' if 'ipadresse' in reader.fieldnames else ('IP-Adresse' if 'IP-Adresse' in reader.fieldnames else 'ip')
+                    ip_col = 'IP-Adresse' if 'IP-Adresse' in reader.fieldnames else 'ip'
                     for row in reader:
                         if ip := row.get(ip_col):
                             ips_to_delete.append(ip.strip())
@@ -419,8 +419,8 @@ Beispiele:
         sys.exit(1)
 
     # Import aus CSV-Datei
-    carrier_filter = args.filter_carrier.strip().lower() if args.filter_carrier else None
-    standort_filter = args.filter_standort.strip().lower() if args.filter_standort else None
+    gruppe_filter = args.filter_gruppe.strip().lower() if args.filter_gruppe else None
+    kurzname_filter = args.filter_kurzname.strip().lower() if args.filter_kurzname else None
 
     if args.importfile:
         print(f"\nINFO: Importiere Conductor-Ziele aus Datei: {args.importfile}")
@@ -428,9 +428,9 @@ Beispiele:
             with open(args.importfile, 'r', encoding='utf-8-sig') as f:
                 reader = csv.DictReader(f)
                 headers = reader.fieldnames or []
-                ip_col = 'ipadresse' if 'ipadresse' in headers else ('IP-Adresse' if 'IP-Adresse' in headers else 'ip')
-                carrier_col = 'kreisoderkommunenname' if 'kreisoderkommunenname' in headers else ('Träger' if 'Träger' in headers else None)
-                standort_col = 'standort' if 'standort' in headers else ('Standort' if 'Standort' in headers else None)
+                ip_col = 'IP-Adresse' if 'IP-Adresse' in headers else 'ip'
+                gruppe_col = 'standortgruppe' if 'standortgruppe' in headers else ('Gruppe' if 'Gruppe' in headers else None)
+                kurzname_col = 'conductorkurzname' if 'conductorkurzname' in headers else None
 
                 for row in reader:
                     ip = row.get(ip_col, '').strip()
@@ -438,15 +438,15 @@ Beispiele:
                         continue
 
                     # Gruppen-Filter
-                    if carrier_filter and carrier_col:
-                        row_carrier = row.get(carrier_col, '').strip().lower()
-                        if carrier_filter not in row_carrier:
+                    if gruppe_filter and gruppe_col:
+                        row_gruppe = row.get(gruppe_col, '').strip().lower()
+                        if gruppe_filter not in row_gruppe:
                             continue
 
-                    # Standort-Filter
-                    if standort_filter and standort_col:
-                        row_standort = row.get(standort_col, '').strip().lower()
-                        if not row_standort.startswith(standort_filter):
+                    # Conductor-Kurzname-Filter
+                    if kurzname_filter and kurzname_col:
+                        row_kurzname = row.get(kurzname_col, '').strip().lower()
+                        if not row_kurzname.startswith(kurzname_filter):
                             continue
 
                     targets.append(ip)
