@@ -1,12 +1,6 @@
 @echo off
-rem Startet eine Eingabeaufforderung im Tool-Ordner mit der virtuellen Python-Umgebung.
+rem Oeffnet eine Eingabeaufforderung im Tool-Ordner (Arbeitsordner fuer Logs und Ergebnisse).
 cd /d "%~dp0"
-if not exist ".venv\Scripts\activate.bat" (
-    echo Die virtuelle Umgebung fehlt. Bitte zuerst setup.bat ausfuehren.
-    pause
-    exit /b 1
-)
-call ".venv\Scripts\activate.bat"
 set PYTHONUTF8=1
 title Aruba Instant Python Tools
 echo.

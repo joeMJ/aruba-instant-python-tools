@@ -2,11 +2,13 @@
 rem ============================================================================
 rem  Aruba Instant Python Tools - Windows-Setup
 rem  Prueft Python (ab 3.9), installiert es bei Bedarf (nur fuer den aktuellen
-rem  Benutzer, kein Admin noetig), laedt die Toolsammlung von GitHub, richtet
-rem  eine virtuelle Umgebung ein und legt eine Startverknuepfung an.
+rem  Benutzer, kein Admin noetig), kopiert die Toolsammlung in einen
+rem  Installationsordner (aus dem Ordner dieser setup.bat, sonst Download von
+rem  GitHub), installiert die Python-Bibliotheken und legt eine
+rem  Desktop-Verknuepfung an.
 rem  Erneutes Ausfuehren aktualisiert die Tools; config.json, Logs und
 rem  gespeicherte Zugangsdaten bleiben erhalten.
-rem  Lies dieses Skript, bevor du es ausfuehrst: es laedt Dateien aus dem Internet.
+rem  Lies dieses Skript, bevor du es ausfuehrst: es kann Dateien aus dem Internet laden.
 rem ============================================================================
 setlocal EnableExtensions EnableDelayedExpansion
 title Aruba Instant Python Tools - Setup
@@ -15,14 +17,17 @@ set "REPO_ZIP=https://github.com/joeMJ/aruba-instant-python-tools/archive/refs/h
 set "PY_VERSION=3.12.10"
 set "DEFAULT_DIR=%USERPROFILE%\ArubaInstantTools"
 set "WORK=%TEMP%\aruba_tools_setup"
+set "HERE=%~dp0"
 
 echo.
 echo ==== Aruba Instant Python Tools - Setup ====
 echo.
 echo Dieses Skript
-echo   1. prueft, ob Python 3.9 oder neuer vorhanden ist (sonst Installation von Python %PY_VERSION% von python.org),
-echo   2. laedt die Toolsammlung von GitHub (%REPO_ZIP%),
-echo   3. richtet eine virtuelle Python-Umgebung mit allen Bibliotheken ein.
+echo   1. prueft, ob Python 3.9 oder neuer vorhanden ist
+echo      (sonst Installation von Python %PY_VERSION% von python.org),
+echo   2. kopiert die Toolsammlung in den Installationsordner
+echo      (aus dem Ordner dieser setup.bat, sonst Download von GitHub),
+echo   3. installiert die benoetigten Python-Bibliotheken.
 echo.
 echo Es sind keine Administratorrechte noetig.
 echo.
@@ -103,36 +108,49 @@ if not defined PYCMD (
 echo Python installiert:
 %PYCMD% --version
 echo.
-echo Hinweis: Neue Eingabeaufforderungen kennen Python nach der Installation automatisch (PATH).
+echo Hinweis: Neue Eingabeaufforderungen kennen Python nach der Installation automatisch ^(PATH^).
 
 :have_python
-rem ---- Toolsammlung herunterladen -----------------------------------------
+rem ---- Toolsammlung: aus diesem Ordner oder von GitHub ----------------------
+set "SRC="
+if exist "%HERE%ap_check.py" if exist "%HERE%requirements.txt" (
+    set "SRC=%HERE:~0,-1%"
+    echo.
+    echo Toolsammlung im Ordner dieser setup.bat gefunden - kein Download noetig.
+)
+if defined SRC goto :have_tools
+
 if not exist "%WORK%" mkdir "%WORK%"
 if exist "%WORK%\tools.zip" del /q "%WORK%\tools.zip"
 if exist "%WORK%\extract" rmdir /s /q "%WORK%\extract"
 echo.
-echo Lade Toolsammlung von GitHub ...
+echo Lade Toolsammlung von GitHub:
+echo   %REPO_ZIP%
 call :download "%REPO_ZIP%" "%WORK%\tools.zip" || goto :end_fail
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -LiteralPath '%WORK%\tools.zip' -DestinationPath '%WORK%\extract' -Force"
 if errorlevel 1 (
     echo FEHLER: Das ZIP-Archiv konnte nicht entpackt werden.
     goto :end_fail
 )
-set "SRC="
 for /d %%D in ("%WORK%\extract\*") do set "SRC=%%~D"
 if not defined SRC (
     echo FEHLER: Im ZIP-Archiv wurde kein Projektordner gefunden.
     goto :end_fail
 )
 
+:have_tools
 rem ---- Dateien in den Zielordner kopieren -----------------------------------
+if /i "%SRC%"=="%TARGET%" (
+    echo Quelle und Zielordner sind identisch - es wird nichts kopiert.
+    goto :after_copy
+)
 if not exist "%TARGET%" mkdir "%TARGET%"
 if not exist "%TARGET%" (
     echo FEHLER: Der Zielordner "%TARGET%" konnte nicht angelegt werden.
     goto :end_fail
 )
 rem config.json (eigene Conductor-IPs/Schwellenwerte) nie ueberschreiben, nichts loeschen
-robocopy "%SRC%" "%TARGET%" /E /XF config.json /NFL /NDL /NJH /NJS /NP >nul
+robocopy "%SRC%" "%TARGET%" /E /XF config.json /XD .git /NFL /NDL /NJH /NJS /NP >nul
 if errorlevel 8 (
     echo FEHLER: Das Kopieren in den Zielordner ist fehlgeschlagen.
     goto :end_fail
@@ -144,25 +162,22 @@ if not exist "%TARGET%\config.json" (
     copy /y "%SRC%\config.json" "%TARGET%\config.json.neu" >nul
     echo Vorhandene config.json bleibt unveraendert ^(aktuelle Vorlage: config.json.neu^).
 )
+:after_copy
 
-rem ---- Virtuelle Umgebung und Bibliotheken ----------------------------------
-if not exist "%TARGET%\.venv\Scripts\python.exe" (
-    echo.
-    echo Erzeuge virtuelle Python-Umgebung ...
-    %PYCMD% -m venv "%TARGET%\.venv"
+rem ---- Python-Bibliotheken ----------------------------------------------------
+echo.
+echo Installiere Bibliotheken aus requirements.txt ^(fuer diesen Benutzer^) ...
+%PYCMD% -m pip install --user --disable-pip-version-check --upgrade pip >nul 2>&1
+%PYCMD% -m pip install --user --disable-pip-version-check -r "%TARGET%\requirements.txt"
+if errorlevel 1 (
+    echo Installation mit --user fehlgeschlagen, neuer Versuch ohne --user ...
+    %PYCMD% -m pip install --disable-pip-version-check -r "%TARGET%\requirements.txt"
     if errorlevel 1 (
-        echo FEHLER: Die virtuelle Umgebung konnte nicht erstellt werden.
+        echo FEHLER: Die Bibliotheken konnten nicht installiert werden. Internetzugang/Proxy pruefen.
         goto :end_fail
     )
 )
-echo.
-echo Installiere Bibliotheken aus requirements.txt ...
-"%TARGET%\.venv\Scripts\python.exe" -m pip install --disable-pip-version-check -r "%TARGET%\requirements.txt"
-if errorlevel 1 (
-    echo FEHLER: Die Bibliotheken konnten nicht installiert werden. Internetzugang/Proxy pruefen.
-    goto :end_fail
-)
-"%TARGET%\.venv\Scripts\python.exe" -c "import paramiko, keyring, Crypto, requests, bs4" >nul 2>&1
+%PYCMD% -c "import paramiko, keyring, Crypto, requests, bs4" >nul 2>&1
 if errorlevel 1 (
     echo FEHLER: Nicht alle Bibliotheken lassen sich importieren.
     goto :end_fail
@@ -172,7 +187,7 @@ rem ---- Desktop-Verknuepfung --------------------------------------------------
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$w = New-Object -ComObject WScript.Shell; $l = $w.CreateShortcut([Environment]::GetFolderPath('Desktop') + '\Aruba Instant Tools.lnk'); $l.TargetPath = '%TARGET%\start-tools.bat'; $l.WorkingDirectory = '%TARGET%'; $l.Save()" >nul 2>&1
 
 rem ---- Aufraeumen ---------------------------------------------------------------
-rmdir /s /q "%WORK%" >nul 2>&1
+if exist "%WORK%" rmdir /s /q "%WORK%" >nul 2>&1
 
 echo.
 echo ============================================================
@@ -180,6 +195,8 @@ echo  Fertig.
 echo.
 echo  Starten:  Desktop-Verknuepfung "Aruba Instant Tools"
 echo            oder "%TARGET%\start-tools.bat"
+echo            oder eine beliebige Eingabeaufforderung/PowerShell
+echo            im Installationsordner
 echo  Dort z. B.:  py ap_check.py 10.1.1.1 --log
 echo.
 echo  Alle Logs und Ergebnisordner entstehen in:
