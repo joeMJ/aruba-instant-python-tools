@@ -88,7 +88,15 @@ pip install -r requirements.txt
 > [!IMPORTANT]
 > **Verbindung zu älteren Aruba-Geräten:** `pip install -r requirements.txt` installiert absichtlich die ältere `paramiko`-Version **4.0.0**. Ältere Aruba-Access-Points melden sich mit einer älteren, weniger sicheren Verschlüsselung an (SSH); neuere `paramiko`-Versionen unterstützen das nicht mehr, und die Tools könnten sich dann **nicht** mehr mit den APs verbinden. Bitte **nicht** auf eine neuere `paramiko`-Version aktualisieren. Die Tools brechen sonst beim Start mit einem Hinweis ab. Nutze die Tools nur im internen Verwaltungsnetz (nicht über das Internet) und halte die Firmware der APs aktuell. Technische Details: [SSH-Kompatibilität](#ssh-kompatibilität-ssh-rsa-sha-1-und-paramiko).
 
-**Genutzte Bibliotheken:** `paramiko` (SSH, auch ältere Cipher-Suites), `keyring` (Windows-Anmeldespeicher), `pycryptodome` (Verschlüsselung der `credentials.bin`), `requests` und `beautifulsoup4` (Firmware-Verzeichnis bei `ap_swarm_update.py`).
+**Genutzte Bibliotheken** (Projektseite · Quelltext):
+
+| Bibliothek | Zweck | Links |
+| :--- | :--- | :--- |
+| `paramiko` | SSH-Verbindungen (auch ältere Cipher-Suites; Version festgelegt, siehe [SSH-Kompatibilität](#ssh-kompatibilität-ssh-rsa-sha-1-und-paramiko)) | [paramiko.org](https://www.paramiko.org/) · [GitHub](https://github.com/paramiko/paramiko) |
+| `keyring` | Windows-Anmeldeinformationsspeicher | [Dokumentation](https://pypi.org/project/keyring/) · [GitHub](https://github.com/jaraco/keyring) |
+| `pycryptodome` | Verschlüsselung der `credentials.bin` | [pycryptodome.org](https://www.pycryptodome.org/) · [GitHub](https://github.com/Legrandin/pycryptodome) |
+| `requests` | HTTP (Firmware-Verzeichnis bei `ap_swarm_update.py`) | [requests.readthedocs.io](https://requests.readthedocs.io/) · [GitHub](https://github.com/psf/requests) |
+| `beautifulsoup4` | HTML-Auswertung (Firmware-Verzeichnis bei `ap_swarm_update.py`) | [Projektseite](https://www.crummy.com/software/BeautifulSoup/) · [PyPI](https://pypi.org/project/beautifulsoup4/) |
 
 ---
 
