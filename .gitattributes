@@ -1,0 +1,9 @@
+# Dateien werden von Git NICHT umgewandelt (-text), damit die Bytes im Repo und im
+# GitHub-"Raw"-Download unveraendert bleiben:
+#  - *.bat muss CRLF behalten (Windows-Batch), auch bei core.autocrlf=true/input
+#  - Python-/Daten-Dateien enthalten teils CRLF, teils LF und bleiben so
+*.bat  -text
+*.py   -text
+*.csv  -text
+*.json -text
+*.sh   text eol=lf
