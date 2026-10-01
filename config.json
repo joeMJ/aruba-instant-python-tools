@@ -1,0 +1,42 @@
+{
+    "//_comment_main": "Hauptkonfiguration für Ziel-IPs und globale Einstellungen.",
+    "conductor_ips": [
+        "10.20.20.5",
+        "10.20.30.5",
+        "10.20.40.5"
+    ],
+    "timeout_seconds": 30,
+	"updatewait_seconds": 10,
+    "num_threads": 10,
+	"upd_threads": 10,
+    "//_comment_switches": "Globale Schalter zum Aktivieren (true) oder Deaktivieren (false) von Prüfroutinen.",
+    "crccheck": true,
+    "_crccheck_comment": "Prüft auf CRC-Fehler auf den Ethernet-Ports.",
+    "check_monitor_mode": true,
+    "_check_monitor_mode_comment": "Meldet APs, die im 'monitor'-Modus sind.",
+    "check_power_status": true,
+    "_check_power_status_comment": "Prüft auf eine eingeschränkte Stromversorgung (PoE).",
+    "check_ip_anomaly": true,
+    "_check_ip_anomaly_comment": "Prüft auf falsche Subnetze oder große Lücken im IP-Bereich.",
+
+    "//_comment_thresholds": "Schwellenwerte für die Problemerkennung.",
+    "minspeed": 1000,
+    "_minspeed_comment": "Minimale Geschwindigkeit in Mb/s für eth0 (und eth1, falls nicht ignoriert).",
+    "mincrc": 100,
+    "_mincrc_comment": "Maximale Anzahl an erlaubten CRC-Fehlern.",
+    "eth1_ignore_speed": true,
+    "_eth1_ignore_speed_comment": "Wenn true, wird die Geschwindigkeit von eth1 nicht geprüft.",
+    "reloadtimeout": 120,
+    "_reloadtimeout_comment": "Maximale Wartezeit in Sekunden, bis ein Conductor nach einem 'reload' offline sein muss.",
+
+    "//_comment_language": "Diese Werte sollten nur geändert werden, wenn die Sprache der APs nicht Englisch ist.",
+    "language_terms": {
+        "header_ip": "IP Address",
+        "header_serial": "Serial #",
+        "header_age": "Age",
+        "interface_speed": "Speed",
+        "interface_duplex": "duplex",
+        "interface_address": "address is",
+        "errors_crc": "Receive CRC errors"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "//_comment": "JSON-Datei zur Übersetzung von Aruba AP-Modellnummern in Teilenummern (SKUs).",
+    "//_comment_format": "Der Schlüssel ist die reine Modellnummer (z.B. '315'), der Wert ist die Teilenummer (z.B. 'JW811A').",
+    
+    "305": "JX945A",
+    "315": "JW811A",
+    "325": "JW325A",
+    "335": "JW823A",
+    "345": "JZ031A",
+    "505": "R2H28A",
+    "515": "Q9H62A",
+    "535": "JZ336A",
+    "555": "JZ356A",
+    "375": "JZ172A",
+    "575": "R4H17A",
+    "577": "R4H22A"
+}

@@ -1,0 +1,34 @@
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python Caches & Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Execution logs and temporary run directories
+ap_check_*/
+ap_list_*/
+ap_delete_*/
+ap_bss_list_*/
+ap_ssid_*/
+swarm_dns_check_*/
+logs_*/
+*.log
+*.log.*
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+* - Kopie*
+* - Copy*
+
+# ACHTUNG: credentials.bin enthält SSH-Zugangsdaten (nur Basisschutz, KEIN sicherer
+# Tresor). NIEMALS committen, weitergeben oder in Cloud-/Backup-Ordner legen!
+credentials.bin

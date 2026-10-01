@@ -1,0 +1,5 @@
+paramiko
+keyring
+pycryptodome
+requests
+beautifulsoup4
