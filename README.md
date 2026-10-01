@@ -58,6 +58,25 @@ Lesende Tools (`ap_check`, `ap_list`, `ap_bss_list`, `swarm_dns_check`, `ap_find
 
 ## Installation
 
+### Windows (Schnellstart mit `setup.bat`)
+
+Für Windows-Anwender ohne Git gibt es ein Setup-Skript. Es prüft, ob **Python 3.9 oder neuer** vorhanden ist, und installiert bei Bedarf Python 3.12 von python.org (nur für den aktuellen Benutzer, **ohne Administratorrechte**, mit PATH-Eintrag; die Signatur des Installers wird geprüft). Danach lädt es die Toolsammlung von GitHub in einen Ordner deiner Wahl (Standard: `%USERPROFILE%\ArubaInstantTools`), richtet eine virtuelle Python-Umgebung mit allen Bibliotheken ein und legt eine Desktop-Verknüpfung an.
+
+1. `setup.bat` herunterladen – entweder auf GitHub **Code → Download ZIP** und entpacken, oder in einer Eingabeaufforderung:
+   ```bat
+   curl.exe -L -o setup.bat https://raw.githubusercontent.com/joeMJ/aruba-instant-python-tools/main/setup.bat
+   ```
+2. `setup.bat` per Doppelklick starten (Windows SmartScreen ggf. mit „Weitere Informationen → Trotzdem ausführen“ bestätigen) und den Anweisungen folgen.
+3. Danach über die Desktop-Verknüpfung **„Aruba Instant Tools“** (bzw. `start-tools.bat` im Installationsordner) eine Eingabeaufforderung im Tool-Ordner öffnen, z. B. `py ap_check.py 10.1.1.1 --log`.
+
+Der Installationsordner ist zugleich der **Arbeitsordner**: Hier liegen `config.json` und alle Logs und Ergebnisordner (er muss für den Benutzer beschreibbar sein). Ein erneuter Aufruf von `setup.bat` aktualisiert die Tools; `config.json`, Logs und gespeicherte Zugangsdaten bleiben erhalten (eine neue Vorlage liegt dann als `config.json.neu` daneben).
+
+> [!NOTE]
+> `setup.bat` lädt Dateien aus dem Internet (Python-Installer von python.org, Toolsammlung von GitHub) und führt sie aus. Es ist nur wenig getestet – **lies das Skript, bevor du es startest**. Wer das nicht möchte, installiert Python manuell von [python.org](https://www.python.org/downloads/windows/) (Haken bei „Add python.exe to PATH“) und folgt der Anleitung unten.
+
+### Manuell (alle Systeme)
+
+
 **Voraussetzungen:** Python 3 (unter Windows von python.org, mit PATH-Eintrag), SSH-Zugriff auf die Conductors.
 
 ```bash
