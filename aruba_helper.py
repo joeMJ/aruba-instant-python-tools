@@ -1,6 +1,6 @@
 ### Aruba Instant Python Tools
 ### aruba_helper.py - Helper-Bibliothek für Aruba Instant
-### Version 1.0.7 - Hinweis zu credentials.bin (Basisschutz) ergänzt
+### Version 1.0.8 - Abbruch mit Korrekturhinweis bei paramiko >= 5 (kein ssh-rsa mehr)
 ### Bestandteil der Aruba Instant Python Tools Suite V 2.0.0
 ### gemacht mit viel Liebe von John (johnlose.de)
 import paramiko
@@ -17,7 +17,7 @@ import hashlib
 from datetime import datetime
 import threading
 
-SCRIPT_VERSION = "1.0.7"
+SCRIPT_VERSION = "1.0.8"
 
 # --- ABHÄNGIGKEITEN-PRÜFUNG ---
 def check_dependencies():
@@ -50,6 +50,20 @@ def check_dependencies():
             print(f"[✗] {package} fehlt")
         else:
             print(f"[✓] {package} gefunden")
+
+    # paramiko >= 5 unterstützt den SSH-Hostschlüssel 'ssh-rsa' (SHA-1) nicht mehr, den Aruba Instant 8.10 anbietet
+    try:
+        import paramiko
+        if int(str(paramiko.__version__).split('.')[0]) >= 5:
+            print(f"\n[✗] FEHLER: paramiko {paramiko.__version__} ist zu neu für Aruba Instant 8.10!")
+            print("    Ab paramiko 5.0 wird der SSH-Hostschlüssel 'ssh-rsa' (SHA-1) nicht mehr unterstützt.")
+            print("    Verbindungen scheitern mit: Incompatible ssh peer (no acceptable host key)")
+            print("    Korrektur:  pip install --user \"paramiko==4.0.0\"")
+            print("    (oder setup.bat erneut ausführen und die Frage zu paramiko mit J beantworten;")
+            print("     Hinweise zur Sicherheit stehen in der README, Abschnitt 'SSH-Kompatibilität')")
+            sys.exit(1)
+    except (ImportError, ValueError):
+        pass
 
     if missing_packages:
         print("\n--- FEHLER: Es fehlen erforderliche Bibliotheken! ---")

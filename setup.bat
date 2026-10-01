@@ -166,20 +166,21 @@ if not exist "%TARGET%\config.json" (
 
 rem ---- SSH-Kompatibilitaet (paramiko) -------------------------------------------
 echo.
-echo ---- SSH-Kompatibilitaet mit aelteren Aruba-Systemen ----
-echo Aruba Instant 8.10 und aeltere Access Points bieten nur den veralteten SSH-
-echo Hostschluessel "ssh-rsa" (SHA-1) an. Neuere paramiko-Versionen ^(ab 5.0^) lehnen
-echo ihn ab; die Tools koennen sich dann nicht verbinden:
-echo     "Incompatible ssh peer ^(no acceptable host key^)"
-echo Empfehlung: paramiko 4.0.0 verwenden ^(unterstuetzt ssh-rsa^).
+echo ---- Verbindung zu aelteren Aruba-Geraeten ----
+echo Aeltere Aruba-Access-Points melden sich mit einer aelteren, weniger sicheren
+echo Verschluesselung an ^(SSH^). Neue Versionen der Python-Bibliothek "paramiko"
+echo unterstuetzen das nicht mehr. Die Tools koennten sich dann NICHT mehr mit den
+echo APs verbinden.
 echo.
-echo Sicherheitshinweis: ssh-rsa mit SHA-1 gilt als veraltet ^(seit OpenSSH 8.8
-echo standardmaessig abgeschaltet: https://www.openssh.com/txt/release-8.8^).
-echo Das Risiko betrifft vor allem die Pruefung des Geraete-Hostschluessels. Setze die
-echo Tools nur im abgesicherten Management-Netz ein und halte die Firmware aktuell.
+echo Empfehlung: J. Es wird die letzte passende Version ^(paramiko 4.0.0^) installiert.
+echo.
+echo Hinweis zur Sicherheit: Diese aeltere Verschluesselung gilt als nicht mehr
+echo zeitgemaess. Nutze die Tools nur im internen Verwaltungsnetz ^(nicht ueber das
+echo Internet^) und halte die Firmware der APs aktuell. Mehr dazu in der README auf
+echo GitHub, Abschnitt "SSH-Kompatibilitaet".
 echo.
 set "PARAMIKO_NEW="
-choice /c JN /n /m "Kompatible Version paramiko 4.0.0 installieren ^(empfohlen^)? [J/N] "
+choice /c JN /n /m "Passende Version installieren ^(empfohlen^)? [J/N] "
 if errorlevel 2 set "PARAMIKO_NEW=1"
 
 rem ---- Python-Bibliotheken ----------------------------------------------------
@@ -196,7 +197,7 @@ if errorlevel 1 (
     )
 )
 if defined PARAMIKO_NEW (
-    echo Installiere die neueste paramiko-Version ^(ohne ssh-rsa-Unterstuetzung^) ...
+    echo Installiere die neueste Version ^(Achtung: aeltere Aruba-Geraete werden damit voraussichtlich nicht erreicht^) ...
     %PYCMD% -m pip install --user --disable-pip-version-check --upgrade paramiko
 )
 %PYCMD% -c "import paramiko; print('paramiko', paramiko.__version__)"

@@ -38,7 +38,7 @@ Die Suite spricht per SSH mit Aruba Instant Virtual Conductors (VC) bzw. Access 
 
 | Datei | Version | Zweck |
 | :--- | :--- | :--- |
-| `aruba_helper.py` | 1.0.7 | Zentrale Bibliothek: SSH (Paramiko), Zugangsdaten (Keyring / `credentials.bin`), Logging, Threads |
+| `aruba_helper.py` | 1.0.8 | Zentrale Bibliothek: SSH (Paramiko), Zugangsdaten (Keyring / `credentials.bin`), Logging, Threads |
 | `ap_check.py` | 8.0.0 | Prüft APs: Gigabit-Anbindung, CRC-Fehler, Duplex, PoE-/Stromstatus, DNS, Monitor-Modus, IP-Auffälligkeiten; fehlerhafte APs als CSV |
 | `ap_list.py` | 1.0.4 | AP-Inventar (IP, MAC, Seriennummer, Teilenummer; optional AP-Name oder GreenLake-/Central-Importformat) |
 | `ap_bss_list.py` | 1.0.2 | BSSID-Liste (ESS, BSS, MAC, Name) |
@@ -68,6 +68,9 @@ Für Windows-Anwender ohne Git gibt es ein Setup-Skript. Es prüft, ob **Python 
 
 Der Installationsordner ist zugleich der **Arbeitsordner**: Hier liegen `config.json` und alle Logs und Ergebnisordner (er muss für den Benutzer beschreibbar sein). Ein erneuter Aufruf von `setup.bat` aktualisiert die Tools; `config.json`, Logs und gespeicherte Zugangsdaten bleiben erhalten (eine neue Vorlage liegt dann als `config.json.neu` daneben).
 
+> [!IMPORTANT]
+> **Verbindung zu älteren Aruba-Geräten:** Das Setup fragt dich, ob die passende Version der Python-Bibliothek `paramiko` (4.0.0) installiert werden soll. **Antworte mit `J`.** Ältere Aruba-Access-Points melden sich mit einer älteren, weniger sicheren Verschlüsselung an (SSH). Neuere `paramiko`-Versionen unterstützen das nicht mehr, und die Tools könnten sich dann **nicht** mehr mit den APs verbinden. Nutze die Tools nur im internen Verwaltungsnetz (nicht über das Internet) und halte die Firmware der APs aktuell. Technische Details: [SSH-Kompatibilität](#ssh-kompatibilität-ssh-rsa-sha-1-und-paramiko).
+
 > [!NOTE]
 > `setup.bat` lädt Dateien aus dem Internet (Python-Installer von python.org, Toolsammlung von GitHub) und führt sie aus. Es ist nur wenig getestet – **lies das Skript, bevor du es startest**. Wer das nicht möchte, installiert Python manuell von [python.org](https://www.python.org/downloads/windows/) (Haken bei „Add python.exe to PATH“) und folgt der Anleitung unten.
 
@@ -81,6 +84,9 @@ git clone https://github.com/joeMJ/aruba-instant-python-tools.git
 cd aruba-instant-python-tools
 pip install -r requirements.txt
 ```
+
+> [!IMPORTANT]
+> **Verbindung zu älteren Aruba-Geräten:** `pip install -r requirements.txt` installiert absichtlich die ältere `paramiko`-Version **4.0.0**. Ältere Aruba-Access-Points melden sich mit einer älteren, weniger sicheren Verschlüsselung an (SSH); neuere `paramiko`-Versionen unterstützen das nicht mehr, und die Tools könnten sich dann **nicht** mehr mit den APs verbinden. Bitte **nicht** auf eine neuere `paramiko`-Version aktualisieren. Die Tools brechen sonst beim Start mit einem Hinweis ab. Nutze die Tools nur im internen Verwaltungsnetz (nicht über das Internet) und halte die Firmware der APs aktuell. Technische Details: [SSH-Kompatibilität](#ssh-kompatibilität-ssh-rsa-sha-1-und-paramiko).
 
 **Genutzte Bibliotheken:** `paramiko` (SSH, auch ältere Cipher-Suites), `keyring` (Windows-Anmeldespeicher), `pycryptodome` (Verschlüsselung der `credentials.bin`), `requests` und `beautifulsoup4` (Firmware-Verzeichnis bei `ap_swarm_update.py`).
 
@@ -127,7 +133,7 @@ Details zu allen Optionen: `--help` des jeweiligen Tools und Quelltext.
 
 ### SSH-Kompatibilität: `ssh-rsa` (SHA-1) und `paramiko`
 
-Aruba Instant 8.10 (und ältere Access Points) bieten per SSH nur den veralteten Hostschlüssel `ssh-rsa` (SHA-1) an. **`paramiko` ab Version 5.0 lehnt ihn ab**; die Tools melden dann `Incompatible ssh peer (no acceptable host key)`. Deshalb ist in `requirements.txt` `paramiko==4.0.0` festgelegt (diese Version unterstützt `ssh-rsa`), und `setup.bat` fragt, ob diese kompatible Version installiert werden soll (empfohlen).
+Aruba Instant 8.10 (und ältere Access Points) bieten per SSH nur den veralteten Hostschlüssel `ssh-rsa` (SHA-1) an. **`paramiko` ab Version 5.0 lehnt ihn ab**; die Tools melden dann `Incompatible ssh peer (no acceptable host key)`. Deshalb ist in `requirements.txt` `paramiko==4.0.0` festgelegt (diese Version unterstützt `ssh-rsa`), und `setup.bat` fragt, ob diese kompatible Version installiert werden soll (empfohlen). Alle Tools prüfen beim Start die installierte `paramiko`-Version und brechen bei Version 5 oder höher mit einem Korrekturhinweis (`pip install --user "paramiko==4.0.0"`) ab.
 
 > [!WARNING]
 > **Sicherheitshinweis:** `ssh-rsa` mit SHA-1 gilt als veraltet und ist seit OpenSSH 8.8 standardmäßig abgeschaltet ([Release-Hinweise](https://www.openssh.com/txt/release-8.8)). Das Risiko betrifft vor allem die Prüfung des Geräte-Hostschlüssels (zusammen mit `AutoAddPolicy` ist sie praktisch deaktiviert). Setze die Tools nur in einem abgesicherten Management-Netz ein und halte die Firmware aktuell. Wer die neueste `paramiko`-Version nutzen will, kann sie nachinstallieren (`pip install --upgrade paramiko`); gegen Geräte, die nur `ssh-rsa` anbieten, funktionieren die Tools dann nicht.
