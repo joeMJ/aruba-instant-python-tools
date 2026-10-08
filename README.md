@@ -48,11 +48,12 @@ Die Suite spricht per SSH mit Aruba Instant Virtual Conductors (VC) bzw. Access 
 | `ap_swarm_reload.py` | 1.0.d | ⚠️ **Startet Swarms neu** |
 | `ap_swarm_update.py` | 4.1.0 | ⚠️ **Firmware-Update** von Swarms per CLI (`-f <URL>`) |
 | `ap_offline_delete.py` | 1.3.0 | ⚠️ **Löscht** offline APs aus der Provisionierungsliste (per CSV) |
+| `ap_ssid_rule.py` | 1.4.0 | ⚠️ **Ergänzt Firewall-Regeln** (Zugriffsregeln) in Swarms mit passender SSID: Scan/Plan (nur lesend), `--apply`, `--verify`, `--rollback`; ausführliche Hilfe mit `--help` |
 | `config.json` | – | Schwellenwerte, Threads, Timeouts, optionale Standard-Conductor-IPs |
 | `apparts.json` | – | Übersetzung AP-Modell → Teilenummer (SKU) |
 | `requirements.txt` | – | Python-Abhängigkeiten |
 
-Lesende Tools (`ap_check`, `ap_list`, `ap_bss_list`, `swarm_dns_check`, `ap_findlog`, `ap_show`) verändern nichts an den Geräten. Schreibende Tools sind mit ⚠️ markiert.
+Lesende Tools (`ap_check`, `ap_list`, `ap_bss_list`, `swarm_dns_check`, `ap_findlog`, `ap_show`) verändern nichts an den Geräten. Schreibende Tools sind mit ⚠️ markiert. `ap_ssid_rule.py` liest standardmäßig nur (Scan/Plan) und schreibt erst mit `--apply` bzw. `--rollback`; es wurde bisher nur mit InstantOS 8.10.0.21 bis 8.10.0.23 getestet. Immer erst mit einem einzelnen Swarm beginnen und mit `--verify` prüfen.
 
 ---
 
