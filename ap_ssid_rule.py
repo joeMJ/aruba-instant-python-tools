@@ -1,6 +1,6 @@
 ### Aruba Instant Python Tools
 ### ap_ssid_rule.py - Ergänzt eine Firewall-Regel (Zugriffsregel) in Swarms mit passender SSID (Scan, Plan, Anwenden, Prüfen, Rollback)
-### Version 1.4.1
+### Version 1.4.2
 ### Bestandteil der Aruba Instant Python Tools Suite V 2.0.0
 ### gemacht mit viel Liebe von John (johnlose.de)
 
@@ -34,7 +34,7 @@ from aruba_helper import (
     KEYRING_AVAILABLE, CRYPTO_AVAILABLE
 )
 
-AP_SSID_RULE_VERSION = "1.4.1"
+AP_SSID_RULE_VERSION = "1.4.2"
 TOOLSUITE_VERSION = "2.0.0"
 print_lock = threading.Lock()
 
@@ -48,6 +48,11 @@ ST_TREFFER = "TREFFER"
 ST_KEIN = "KEIN_TREFFER"
 ST_AIRWAVE = "AIRWAVE"
 ST_CENTRAL = "CENTRAL"
+
+# Verwaltungsstatus eines Swarms (Anzeige/Spalte managedby)
+MANAGED_NONE = "nicht verwaltet"
+MANAGED_AIRWAVE = "AirWave"
+MANAGED_CENTRAL = "Central"
 ST_NORULE = "KEINE_ZUGRIFFSREGEL"
 ST_ABSCHLUSS = "ABSCHLUSS_UNERWARTET"
 ST_VORHANDEN = "REGEL_VORHANDEN"
@@ -110,18 +115,18 @@ def summary_info(summary_out):
 
 
 def detect_management(summary_out, airwave_marker):
-    """'Airwave', 'cop 2.0' oder 'john' (nicht von AirWave/Central verwaltet).
+    """'AirWave', 'Central' oder 'nicht verwaltet' (weder von AirWave noch von Central verwaltet).
     Central gilt nur als verwaltet, wenn 'Aruba Central' den Status 'Connected' hat. Ein eingetragener, aber
     nicht verbundener Central-Server ('Managed Via: Aruba Central' + 'Not Connected') zählt NICHT als verwaltet."""
     info = summary_info(summary_out)
     mv, ac, aw = info["managed_via"].lower(), info["central"].lower(), info["airwave"].lower()
     if ac == 'connected' and 'central' in mv:
-        return 'cop 2.0'   # Central verbunden und als Verwalter eingetragen (auch wenn noch ein alter ams-ip-Eintrag existiert)
+        return MANAGED_CENTRAL   # Central verbunden und als Verwalter eingetragen (auch wenn noch ein alter ams-ip-Eintrag existiert)
     if airwave_marker or aw == 'connected' or ('airwave' in mv and aw not in ('', 'not set up', 'not connected')):
-        return 'Airwave'
+        return MANAGED_AIRWAVE
     if ac == 'connected':
-        return 'cop 2.0'
-    return 'john'
+        return MANAGED_CENTRAL
+    return MANAGED_NONE
 
 
 def ssid_matches(essid, args):
@@ -139,9 +144,9 @@ def build_items(ip, name, managed, cfg, new_rules, args):
             "managed_via": si.get("managed_via", ""), "central_status": si.get("central", "")}
     central_ohne = si.get("managed_via", "").lower().find("central") >= 0 and si.get("central", "").lower() != "connected"
     base["note"] = "Managed Via Aruba Central, aber Central NICHT verbunden" if central_ohne else ""
-    if managed == "Airwave":
+    if managed == MANAGED_AIRWAVE:
         return [dict(base, status=ST_AIRWAVE, ssid="", rule_name="", hinweis="von AirWave verwaltet")]
-    if managed != "john":
+    if managed != MANAGED_NONE:
         return [dict(base, status=ST_CENTRAL, ssid="", rule_name="", hinweis="von Central verwaltet")]
     hits = [s for s in cfg["ssids"] if ssid_matches(s["essid"], args)]
     if not hits:
@@ -430,7 +435,7 @@ def process_item(item, creds, timeout, mode, out_dir):
     try:
         client = connect(ip, creds, timeout)
         name, managed, cfg = read_state(client)
-        if managed != "john":
+        if managed != MANAGED_NONE:
             res.update(status="ABGEBROCHEN", hinweis=f"VC ist jetzt '{managed}' verwaltet")
             return res
         current = cfg["rules"].get(rname)
